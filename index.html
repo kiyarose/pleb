@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fancy Buttons</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f0f0; /* Light gray background */
+            margin: 0; /* Remove default margin */
+        }
+
+        .container {
+            display: flex;
+            gap: 20px; /* Spacing between buttons */
+        }
+
+        .btn {
+            position: relative;
+            display: inline-block;
+            padding: 15px 30px;
+            font-size: 18px;
+            text-decoration: none;
+            text-transform: uppercase;
+            color: #fff;
+            border-radius: 5px;
+            overflow: hidden; /* For the ripple effect */
+            transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+        }
+
+        .btn-filing {
+            background-color: #4CAF50; /* Green */
+        }
+
+        .btn-editor {
+            background-color: #2196F3; /* Blue */
+        }
+
+
+        .btn:hover {
+            transform: translateY(-5px); /* Move up slightly on hover */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Darker shadow on hover */
+        }
+
+        .btn:active {
+            transform: translateY(0); /* Back to original position on click */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Smaller shadow on click */
+        }
+
+        .btn span { /* Ripple effect */
+            position: absolute;
+            background: rgba(255, 255, 255, 0.3); /* White with opacity */
+            border-radius: 50%;
+            transform: scale(0);
+            pointer-events: none; /* So the ripple doesn't interfere with clicks */
+            animation: ripple 0.5s linear;
+        }
+
+        @keyframes ripple {
+            to {
+                transform: scale(3);
+                opacity: 0;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="cab.html" class="btn btn-filing">Filing Cabinet</a>
+        <a href="pell.html" class="btn btn-editor">Advanced Editor</a>
+    </div>
+
+    <script>
+        const buttons = document.querySelectorAll('.btn');
+
+        buttons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                let x = e.clientX - e.target.offsetLeft;
+                let y = e.clientY - e.target.offsetTop;
+
+                let ripples = document.createElement('span');
+                ripples.style.left = x + 'px';
+                ripples.style.top = y + 'px';
+                this.appendChild(ripples);
+
+                setTimeout(() => {
+                    ripples.remove();
+                }, 500); // Match the ripple animation duration
+            });
+        });
+    </script>
+
+</body>
+</html>
