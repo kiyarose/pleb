@@ -4,7 +4,7 @@
     <link rel="stylesheet" type="text/css" href="dist/pell.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>File Cabinet</title>
+    <title>DEBUG</title>
     <style>
         body {
             font-family: sans-serif;
@@ -191,13 +191,13 @@
             drawer.appendChild(content);
 
             drawer.addEventListener('click', () => {
-                editorArea.value = data.content;
+               // editorArea.value = data.content;
                 selectedDrawerIndex = index;
                 drawer.classList.add('open');
                 setTimeout(() => {
                     drawer.classList.remove('open');
                 }, 500);
-                document.getElementById('text-output').innerHTML = editorArea.textContent
+                document.getElementById('text-output').innerHTML = data.content
             });
             return drawer;
         }
@@ -280,7 +280,7 @@
         element: document.getElementById('editor'),
         defaultParagraphSeparator: 'p',
         onChange: function (html) {
-          document.getElementById('text-output').innerHTML = html
+         // document.getElementById('text-output').innerHTML = html
           document.getElementById('editor-area').textContent = html
         }
       })
