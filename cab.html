@@ -137,6 +137,7 @@
 
     <div id="cabinet">
     </div>
+    <button id="save-button">Save</button>
         <div class="content">
       <div style="margin-top:20px;">
         <div id="text-output"></div>
@@ -147,7 +148,7 @@
       </div>
     </div>
     <textarea style="display: none;" id="editor-area"></textarea>
-<button id="save-button">Save</button>
+
 
     <div id="debug-area">
         <input type="checkbox" id="debug-checkbox">
@@ -222,6 +223,7 @@
                 drawers[selectedDrawerIndex].content = editorArea.value;
                 saveArea.value = JSON.stringify(drawers, null, 2);
                 loadDrawers(drawers);
+                document.cookie(saveArea.value)
             }
         }
 
