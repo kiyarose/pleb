@@ -197,6 +197,7 @@
                 setTimeout(() => {
                     drawer.classList.remove('open');
                 }, 500);
+                document.getElementById('text-output').innerHTML = editorArea.textContent
             });
             return drawer;
         }
@@ -280,7 +281,7 @@
         defaultParagraphSeparator: 'p',
         onChange: function (html) {
           document.getElementById('text-output').innerHTML = html
-          document.getElementById('html-output').textContent = html
+          document.getElementById('editor-area').textContent = html
         }
       })
     </script>
