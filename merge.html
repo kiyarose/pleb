@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" type="text/css" href="dist/pell.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Cabinet</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            overflow-x: hidden;
+        }
+
+        #cabinet {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+            perspective: 800px;
+        }
+
+        .drawer {
+            width: 200px;
+            height: 150px;
+            background-color: #d0b8a8;
+            border: 1px solid #c09f8f;
+            margin: 10px;
+            border-radius: 5px;
+            box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);
+            position: relative;
+            transition: transform 0.5s ease, box-shadow 0.5s ease;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+
+        .drawer:hover {
+            transform: translateY(-5px) rotateX(5deg);
+            box-shadow: 5px 5px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .drawer-content {
+            padding: 10px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        #editor-area {
+            width: 80%;
+            height: 300px;
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            resize: vertical;
+            font-family: monospace;
+            overflow: auto;
+        }
+
+        #save-button {
+            margin-top: 10px;
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #save-button:hover {
+            background-color: #45a049;
+        }
+
+        .drawer.open {
+            transform: rotateY(90deg) translateX(100px);
+            opacity: 0;
+        }
+
+        #saver-area {
+            width: 80%;
+            height: 300px;
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            resize: vertical;
+            font-family: monospace;
+            overflow: auto;
+        }
+        #add-drawer-button {
+            margin-top: 10px;
+            padding: 8px 16px;
+            background-color: #007bff; /* Blue color */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #add-drawer-button:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+        }
+        #debug-area {
+            margin-top: 10px;
+            display: flex;
+            align-items: center; /* Vertically align items */
+        }
+
+        #debug-checkbox {
+            margin-right: 10px; /* Add some space between checkbox and label */
+        }
+      .content {
+        box-sizing: border-box;
+        margin: 0 auto;
+        max-width: 600px;
+        padding: 20px;
+      }
+
+      #html-output {
+        white-space: pre-wrap;
+      }
+    </style>
+</head>
+<body>
+
+    <h1>File Cabinet</h1>
+
+    <div id="cabinet">
+    </div>
+    
+    <h2>Text Editor</h2>
+        <div class="content">
+      <h1>pell</h1>
+      <div id="editor" class="pell"></div>
+      <div style="margin-top:20px;">
+        <h3>Text output:</h3>
+        <div id="text-output"></div>
+      </div>
+      <div style="margin-top:20px;">
+        <h3>HTML output:</h3>
+        <pre id="html-output"></pre>
+      </div>
+    </div>
+    <textarea id="editor-area"></textarea>
+<button id="save-button">Save</button>
+
+    <div id="debug-area">
+        <input type="checkbox" id="debug-checkbox">
+        <label for="debug-checkbox">Debugging</label>
+        <button style="display: none;" id='rr-drawer'>Reload Drawers from JSON</button>
+    </div>
+   
+
+    <h2 id="saver-title">Saved Data</h2> <textarea onload="saveContent()" id="saver-area"></textarea>
+    <button id="add-drawer-button">Add Drawer</button>
+    <button>Export</button>
+
+
+    <script>
+        const cabinet = document.getElementById('cabinet');
+        const editorArea = document.getElementById('editor-area');
+        const saveButton = document.getElementById('save-button');
+        const saveArea = document.getElementById('saver-area');
+        const rr = document.getElementById("rr-drawer");
+        const saverTitle = document.getElementById('saver-title');
+        const addDrawerButton = document.getElementById('add-drawer-button');
+        const debugCheckbox = document.getElementById('debug-checkbox');
+        let drawers = [];
+        let selectedDrawerIndex = null;
+
+        const initialDrawerData = [
+            { title: "Notes", content: "This is the content of document 1." },
+            { title: "To-Do", content: "Quick notes go here." }
+        ];
+
+        function createDrawer(data, index) {
+            const drawer = document.createElement('div');
+            drawer.classList.add('drawer');
+            const content = document.createElement('div');
+            content.classList.add('drawer-content');
+            content.textContent = data.title;
+            drawer.appendChild(content);
+
+            drawer.addEventListener('click', () => {
+                editorArea.value = data.content;
+                selectedDrawerIndex = index;
+                drawer.classList.add('open');
+                setTimeout(() => {
+                    drawer.classList.remove('open');
+                }, 500);
+            });
+            return drawer;
+        }
+
+        function loadDrawers(data) {
+            cabinet.innerHTML = '';
+            drawers = data;
+
+            data.forEach((item, index) => {
+                const drawer = createDrawer(item, index);
+                cabinet.appendChild(drawer);
+            });
+        }
+
+        function saveContent() {
+            if (selectedDrawerIndex !== null) {
+                drawers[selectedDrawerIndex].content = editorArea.value;
+                saveArea.value = JSON.stringify(drawers, null, 2);
+                loadDrawers(drawers);
+            }
+        }
+
+        function addNewDrawer() {
+            const newTitle = prompt("Enter the title for the new drawer:", "New Document");
+            if (newTitle) {
+                const newDrawerData = { title: newTitle, content: "" };
+                drawers.push(newDrawerData);
+                loadDrawers(drawers);
+                saveArea.value = JSON.stringify(drawers, null, 2);
+
+            }
+        }
+        
+        function relDrawer() {
+        
+                    try {
+                const savedData = JSON.parse(saveArea.value);
+                if (Array.isArray(savedData)) {
+                    loadDrawers(savedData);
+                    drawers = savedData;
+                } else {
+                    console.error("Invalid JSON data in save area.  Must be an array of drawer objects.");
+                    alert("Invalid JSON data in save area.  Must be an array of drawer objects.");
+                }
+            } catch (error) {
+                console.error("Error parsing JSON:", error);
+                alert("Error parsing JSON. Please check the format.");
+            }
+        
+        }
+        saveButton.addEventListener('click', saveContent);
+        addDrawerButton.addEventListener('click', addNewDrawer);
+        rr.addEventListener('click', relDrawer);
+
+        loadDrawers(initialDrawerData);
+
+        debugCheckbox.addEventListener('change', () => {
+            if (debugCheckbox.checked) {
+                saverTitle.style.display = 'block';
+                saveArea.style.display = 'block';
+                rr.style.display = 'block';
+              //  saveButton.style.display = 'block';
+            } else {
+                saverTitle.style.display = 'none';
+                saveArea.style.display = 'none';
+              //  saveButton.style.display = 'none';
+                rr.style.display = 'none';
+            }
+        });
+
+        // Initially hide the saver area
+        saverTitle.style.display = 'none';
+        saveArea.style.display = 'none';
+
+
+    </script>
+    <script src="dist/pell.js"></script>
+    <script>
+      var editor = window.pell.init({
+        element: document.getElementById('editor'),
+        defaultParagraphSeparator: 'p',
+        onChange: function (html) {
+          document.getElementById('text-output').innerHTML = html
+          document.getElementById('html-output').textContent = html
+        }
+      })
+    </script>
+
+</body>
+</html>
