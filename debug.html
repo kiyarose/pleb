@@ -4,7 +4,7 @@
     <link rel="stylesheet" type="text/css" href="dist/pell.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DEBUG</title>
+    <title>Filing</title>
     <script src="dist/pell.js"></script>
     <style>
         body {
@@ -133,10 +133,12 @@
 </head>
 <body>
 
-    <h1>File Cabinet</h1>
+    <h1 id="main-heading">File Cabinet</h1>
 
     <div id="cabinet">
     </div>
+    <button id="save-button">Save</button>
+    <button id="add-drawer-button">Add Drawer</button>
         <div class="content">
       <div style="margin-top:20px;">
         <div id="text-output"></div>
@@ -147,7 +149,7 @@
       </div>
     </div>
     <textarea style="display: none;" id="editor-area"></textarea>
-<button id="save-button">Save</button>
+
 
     <div id="debug-area">
         <input type="checkbox" id="debug-checkbox">
@@ -157,8 +159,6 @@
    
 
     <h2 id="saver-title">Saved Data</h2> <textarea onload="saveContent()" id="saver-area"></textarea>
-    <button id="add-drawer-button">Add Drawer</button>
-    <button>Export</button>
 
 
     <script>
@@ -178,6 +178,7 @@
         const saverTitle = document.getElementById('saver-title');
         const addDrawerButton = document.getElementById('add-drawer-button');
         const debugCheckbox = document.getElementById('debug-checkbox');
+        const mainHeading = document.getElementById('main-heading');
         let drawers = [];
         let selectedDrawerIndex = null;
 
@@ -222,6 +223,7 @@
                 drawers[selectedDrawerIndex].content = editorArea.value;
                 saveArea.value = JSON.stringify(drawers, null, 2);
                 loadDrawers(drawers);
+                document.cookie(saveArea.value)
             }
         }
 
@@ -233,6 +235,13 @@
                 loadDrawers(drawers);
                 saveArea.value = JSON.stringify(drawers, null, 2);
 
+            }
+        }
+
+        function handleHeadingClick() {
+            const newHeading = prompt("Enter new heading:", mainHeading.textContent);
+            if (newHeading !== null && newHeading !== "") {
+                mainHeading.textContent = newHeading;
             }
         }
         
@@ -253,6 +262,8 @@
             }
         
         }
+
+        mainHeading.addEventListener('click', handleHeadingClick);
         saveButton.addEventListener('click', saveContent);
         addDrawerButton.addEventListener('click', addNewDrawer);
         rr.addEventListener('click', relDrawer);
@@ -267,19 +278,3 @@
               //  saveButton.style.display = 'block';
             } else {
                 saverTitle.style.display = 'none';
-                saveArea.style.display = 'none';
-              //  saveButton.style.display = 'none';
-                rr.style.display = 'none';
-            }
-        });
-
-        // Initially hide the saver area
-        saverTitle.style.display = 'none';
-        saveArea.style.display = 'none';
-
-
-    </script>
-    
-
-</body>
-</html>
