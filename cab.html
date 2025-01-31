@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" type="text/css" href="dist/pell.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>File Cabinet</title>
+    <title>Filing</title>
+    <script src="dist/pell.js"></script>
     <style>
         body {
             font-family: sans-serif;
@@ -117,7 +119,16 @@
         #debug-checkbox {
             margin-right: 10px; /* Add some space between checkbox and label */
         }
+      .content {
+        box-sizing: border-box;
+        margin: 0 auto;
+        max-width: 600px;
+        padding: 20px;
+      }
 
+      #html-output {
+        white-space: pre-wrap;
+      }
     </style>
 </head>
 <body>
@@ -126,9 +137,16 @@
 
     <div id="cabinet">
     </div>
-
-    <h2>Text Editor</h2>
-    <textarea id="editor-area"></textarea>
+        <div class="content">
+      <div style="margin-top:20px;">
+        <div id="text-output"></div>
+          <div id="editor" class="pell"></div>
+      </div>
+      <div style="margin-top:20px;">
+        <pre id="html-output"></pre>
+      </div>
+    </div>
+    <textarea style="display: none;" id="editor-area"></textarea>
 <button id="save-button">Save</button>
 
     <div id="debug-area">
@@ -144,6 +162,14 @@
 
 
     <script>
+        var editor = window.pell.init({
+           element: document.getElementById('editor'),
+           defaultParagraphSeparator: 'p',
+           onChange: function (html) {
+         // document.getElementById('text-output').innerHTML = html
+          document.getElementById('editor-area').textContent = html
+        }
+      })
         const cabinet = document.getElementById('cabinet');
         const editorArea = document.getElementById('editor-area');
         const saveButton = document.getElementById('save-button');
@@ -169,12 +195,14 @@
             drawer.appendChild(content);
 
             drawer.addEventListener('click', () => {
-                editorArea.value = data.content;
+               // editorArea.value = data.content;
                 selectedDrawerIndex = index;
                 drawer.classList.add('open');
                 setTimeout(() => {
                     drawer.classList.remove('open');
                 }, 500);
+     //           document.getElementById('text-output').innerHTML = data.content
+                editor.children.item(1).innerHTML = data.content
             });
             return drawer;
         }
@@ -251,6 +279,7 @@
 
 
     </script>
-<a href="/merge.html">BETA</a>
+    
+
 </body>
 </html>
