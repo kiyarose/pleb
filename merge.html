@@ -161,6 +161,14 @@
 
 
     <script>
+        var editor = window.pell.init({
+           element: document.getElementById('editor'),
+           defaultParagraphSeparator: 'p',
+           onChange: function (html) {
+         // document.getElementById('text-output').innerHTML = html
+          document.getElementById('editor-area').textContent = html
+        }
+      })
         const cabinet = document.getElementById('cabinet');
         const editorArea = document.getElementById('editor-area');
         const saveButton = document.getElementById('save-button');
@@ -192,7 +200,8 @@
                 setTimeout(() => {
                     drawer.classList.remove('open');
                 }, 500);
-                document.getElementById('text-output').innerHTML = data.content
+     //           document.getElementById('text-output').innerHTML = data.content
+                editor.children.item(1).innerHTML = data.content
             });
             return drawer;
         }
@@ -270,16 +279,6 @@
 
     </script>
     <script src="dist/pell.js"></script>
-    <script>
-      var editor = window.pell.init({
-        element: document.getElementById('editor'),
-        defaultParagraphSeparator: 'p',
-        onChange: function (html) {
-         // document.getElementById('text-output').innerHTML = html
-          document.getElementById('editor-area').textContent = html
-        }
-      })
-    </script>
 
 </body>
 </html>
