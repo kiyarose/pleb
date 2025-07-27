@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calendar Mockup</title>
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
+    .day { border: 1px solid #ccc; padding: 10px; min-height: 150px; }
+    .day h3 { margin: 0; font-size: 1em; text-align: center; }
+    .event { padding: 4px; margin-top: 4px; border-radius: 4px; font-size: 0.9em; cursor: pointer; color: white; }
+    .event.overlap { background-color: #f88; }
+    .form-group { margin-bottom: 10px; }
+    .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 20px; }
+  </style>
+</head>
+<body>
+  <h2>Mockup Calendar</h2>
+  <form id="eventForm" class="form-group controls">
+    <input type="text" id="title" placeholder="Event Title" required />
+    <input type="date" id="date" required />
+    <input type="time" id="time" required />
+    <input type="color" id="color" value="#8f8" title="Choose event color" />
+    <button type="submit">Add Event</button>
+  </form>
+
+  <form id="rangeForm" class="form-group controls">
+    <label for="startRange">Start Date:</label>
+    <input type="date" id="startRange" required />
+    <label for="endRange">End Date:</label>
+    <input type="date" id="endRange" required />
+    <button type="submit">Update Range</button>
+  </form>
+
+  <div class="calendar" id="calendar"></div>
+
+  <script>
+    const calendarEl = document.getElementById("calendar");
+    const startRangeInput = document.getElementById("startRange");
+    const endRangeInput = document.getElementById("endRange");
+    const events = [];
+
+    // Set default dates
+    const today = new Date();
+    const dayOfWeek = today.getDay(); // 0 (Sun) to 6 (Sat)
+    let startDate = new Date(today);
+    startDate.setDate(today.getDate() - dayOfWeek);
+    let endDate = new Date(startDate);
+    endDate.setDate(startDate.getDate() + 6);
+
+    // Default input values
+    document.getElementById("date").value = today.toISOString().split("T")[0];
+    startRangeInput.value = startDate.toISOString().split("T")[0];
+    endRangeInput.value = endDate.toISOString().split("T")[0];
+
+    function getDateInputValue(id) {
+      const input = document.getElementById(id);
+      return input && input.value ? new Date(input.value) : null;
+    }
+
+    function generateDateRange(start, end) {
+      const days = [];
+      let current = new Date(start);
+      while (current <= end) {
+        days.push(new Date(current));
+        current.setDate(current.getDate() + 1);
+      }
+      return days;
+    }
+
+    function addEvent(e) {
+      e.preventDefault();
+      const title = document.getElementById("title").value.trim();
+      const date = document.getElementById("date").value;
+      const time = document.getElementById("time").value;
+      const color = document.getElementById("color").value;
+
+      if (!title || !date || !time) {
+        alert("Please fill out all event fields.");
+        return;
+      }
+
+      const dateTime = new Date(`${date}T${time}`);
+      events.push({ title, date: dateTime, color });
+
+      document.getElementById("title").value = "";
+      document.getElementById("date").value = today.toISOString().split("T")[0];
+      document.getElementById("time").value = "";
+      document.getElementById("color").value = "#8f8";
+
+      renderCalendar();
+    }
+
+    function updateRange(e) {
+      e.preventDefault();
+      const newStart = getDateInputValue("startRange");
+      const newEnd = getDateInputValue("endRange");
+
+      if (newStart && newEnd && newStart <= newEnd) {
+        startDate = newStart;
+        endDate = newEnd;
+        renderCalendar();
+      } else {
+        alert("Please select a valid start and end date.");
+      }
+    }
+
+    function isSameDay(d1, d2) {
+      return (
+        d1.getFullYear() === d2.getFullYear() &&
+        d1.getMonth() === d2.getMonth() &&
+        d1.getDate() === d2.getDate()
+      );
+    }
+
+    function checkOverlaps(currentEvent) {
+      return events.some(ev =>
+        ev !== currentEvent &&
+        isSameDay(ev.date, currentEvent.date) &&
+        ev.date.getHours() === currentEvent.date.getHours()
+      );
+    }
+
+    function renderCalendar() {
+      calendarEl.innerHTML = "";
+      const days = generateDateRange(startDate, endDate);
+      const weekdayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+      days.forEach(day => {
+        const dayEl = document.createElement("div");
+        dayEl.className = "day";
+        dayEl.innerHTML = `<h3>${weekdayNames[day.getDay()]}<br>${day.toLocaleDateString()}</h3>`;
+
+        const dayEvents = events.filter(e => isSameDay(e.date, day));
+
+        dayEvents.forEach((e) => {
+          const evEl = document.createElement("div");
+          const timeStr = e.date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          evEl.className = `event ${checkOverlaps(e) ? "overlap" : "normal"}`;
+          evEl.style.backgroundColor = e.color || "#8f8";
+          evEl.textContent = `${timeStr} - ${e.title}`;
+          evEl.title = "Click to delete event";
+          evEl.addEventListener("click", () => {
+            const i = events.indexOf(e);
+            if (i > -1 && confirm("Delete this event?")) {
+              events.splice(i, 1);
+              renderCalendar();
+            }
+          });
+          dayEl.appendChild(evEl);
+        });
+
+        calendarEl.appendChild(dayEl);
+      });
+    }
+
+    document.getElementById("eventForm").addEventListener("submit", addEvent);
+    document.getElementById("rangeForm").addEventListener("submit", updateRange);
+
+    renderCalendar();
+  </script>
+</body>
+</html>
